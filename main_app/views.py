@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -57,11 +57,26 @@ def cats_show(request, cat_id):
     # we get access to that cat_id variable
     # query for the specific cat clicked
     cat = Cat.objects.get(id=cat_id)
+    # lets make a feeding_form
     feeding_form = FeedingForm()
     return render(request, 'cats/show.html', {
         'cat': cat,
         'feeding_form': feeding_form
     })
+
+# FEEDING
+
+
+def add_feeding(request, pk):
+    form = FeedingForm(request.POST)
+    # validate form.is_valid built in
+    if form.is_valid():
+        new_feeing = form.save(commit=False)
+        # don't save yet!!! First let's add our cat_id
+        new_feeing.cat_id = pk
+        # the cat has been added we can now save
+        new_feeing.save()
+    return redirect('cats_show', cat_id=pk)
 
 # Instrcutions
 # 1. Update index view function to look similar to the contact view function
