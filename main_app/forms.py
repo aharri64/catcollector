@@ -1,9 +1,18 @@
 from django import forms
-from .models import Feeding
+from .models import Feeding, Cat
+
 
 class FeedingForm(forms.ModelForm):
-    #meta class because that's how django can do it
+    # meta class because that's how django can do it
     class Meta:
-        #which model
+        # which model
         model = Feeding
         fields = ['date', 'meal']
+
+# added a catform
+
+
+class CatForm(forms.ModelForm):
+    class Meta:
+        model = Cat
+        fields = ('name', 'breed', 'description', 'age')
