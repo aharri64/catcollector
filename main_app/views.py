@@ -51,7 +51,7 @@ def contact(request):
 
 # CATS
 def cats_index(request):
-    cats = Cat.objects.all()
+    cats = Cat.objects.all(t)
     return render(request, 'cats/index.html', {'cats': cats})
 
 
