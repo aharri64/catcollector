@@ -2,21 +2,23 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 
 # import models
 from .models import Cat
 
 # access the feeding form
-from .forms import FeedingForm
+from .forms import FeedingForm, CatForm
 
 # import Django form classes
 # these handle CRUD for us
 
 
-class CatCreate(CreateView):
-    model = Cat
-    fields = '__all__'
-    success_url = '/cats'
+# class CatCreate(CreateView):
+#     model = Cat
+#     # fields = '__all__'
+#     success_url = '/cats'
 
 
 class CatUpdate(UpdateView):
@@ -64,6 +66,20 @@ def cats_show(request, cat_id):
         'feeding_form': feeding_form
     })
 
+
+def cats_new(request):
+    # create new instance of cat form filled with submitted values or nothing
+    cat_form = CatForm(request.POST or None)
+    # if the form was posted and valid
+    if request.POST and cat_form.is_valid():
+        new_cat = cat_form.save(commit=False)
+        new_cat.user = request.user
+        new_cat.save()
+        # redirect to index
+        return redirect('index')
+    else:
+        # render the page with the new cat form
+        return render(request, 'cats/new.html', {'cat_form': cat_form})
 # FEEDING
 
 
@@ -77,6 +93,21 @@ def add_feeding(request, pk):
         # the cat has been added we can now save
         new_feeing.save()
     return redirect('cats_show', cat_id=pk)
+
+
+def signup(request):
+    error_message = ''
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('index')
+        else:
+            error_message = 'Invalid sign up - try again'
+    form = UserCreationForm()
+    context = {'form': form, 'error_message': error_message}
+    return render(request, 'registration/signup.html', context)
 
 # Instrcutions
 # 1. Update index view function to look similar to the contact view function
